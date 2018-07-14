@@ -4,3 +4,5 @@ version = "0.1.0"
 authors = ["Patrick Chan <patrickchan1999@gmail.com>"]
 
 [dependencies]
+filters = { git = "https://github.com/torch-rs/filters" }
+searchers = { git = "https://github.com/torch-rs/searchers" }

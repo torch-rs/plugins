@@ -1,6 +1,7 @@
 extern crate filters;
 extern crate searchers;
 
+pub mod files_plugin;
 pub mod wordlist_plugin;
 
 pub trait Plugin {

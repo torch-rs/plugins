@@ -8,3 +8,4 @@ dirs = "1.0"
 filters = { git = "https://github.com/torch-rs/filters" }
 open = "1.2.1"
 searchers = { git = "https://github.com/torch-rs/searchers" }
+sorters = { git = "https://github.com/torch-rs/sorters" }

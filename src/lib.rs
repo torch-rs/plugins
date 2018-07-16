@@ -4,7 +4,7 @@ extern crate searchers;
 pub mod files_plugin;
 pub mod wordlist_plugin;
 
-pub fn get_plugin(search_term: String) -> Option<Box<Plugin + 'static>> {
+pub fn get_plugin(search_term: String) -> Option<Box<Plugin + 'static + Send>> {
     if files_plugin::FilesPlugin::can_handle(search_term.clone()) {
         Some(Box::new(files_plugin::FilesPlugin))
     } else if wordlist_plugin::WordlistPlugin::can_handle(search_term.clone()) {

@@ -18,6 +18,8 @@ pub trait Plugin {
 
     fn can_handle(search_term: String) -> bool where Self: Sized;
     fn description(&self) -> &'static str; 
+    fn execute_primary_action(&self, input: String) -> bool;
+    fn execute_secondary_action(&self, input: String) -> bool;
     fn get_search_result(&self, search_term: String) -> Result<Vec<String>, ()>;
     
 }
@@ -43,6 +45,7 @@ mod tests {
                    Ok(vec!["asssembler".to_string(), "bossship".to_string(), "demigoddessship".to_string(),
                            "earlesss".to_string(), "goddessship".to_string(), "headmistressship".to_string(),
                            "passsaging".to_string(), "patronessship".to_string()]));
+        assert!(!plugin.execute_primary_action(String::from("bossship")));
     }
 
 }

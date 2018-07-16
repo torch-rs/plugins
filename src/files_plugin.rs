@@ -5,6 +5,7 @@ use searchers::Search;
 use searchers::files_searcher::FilesSearcher;
 
 static SEARCH_PREFIX: &'static str = ":files ";
+pub static DESCRIPTION: &'static str = "A files plugin";
 
 pub struct FilesPlugin;
 
@@ -14,7 +15,11 @@ impl Plugin for FilesPlugin {
         search_term.starts_with(SEARCH_PREFIX)
     }
     
-    fn get_search_result(search_term: String) -> Result<Vec<String>, ()> {
+    fn description(&self) -> &'static str {
+        DESCRIPTION
+    }
+
+    fn get_search_result(&self, search_term: String) -> Result<Vec<String>, ()> {
         if !Self::can_handle(search_term.clone()) {
             return Err(());
         }
@@ -40,7 +45,7 @@ mod tests {
             Some(path) => path.to_string_lossy().into_owned(),
             None => String::from("")
         };
-        assert_eq!(FilesPlugin::get_search_result(String::from(":files evil.pdf")),
+        assert_eq!(FilesPlugin.get_search_result(String::from(":files evil.pdf")),
                    Ok(vec![format!("{}/Downloads/evil.pdf", homedir),
                            format!("{}/OSSetup/EvilEmacs/straight/repos/evil/doc/evil.pdf", homedir)]));
     }

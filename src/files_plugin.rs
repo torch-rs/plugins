@@ -1,3 +1,7 @@
+extern crate open;
+
+use std::thread;
+
 use Plugin;
 use filters::Filter;
 use filters::substring_filter::SubstringFilter;
@@ -17,6 +21,19 @@ impl Plugin for FilesPlugin {
     
     fn description(&self) -> &'static str {
         DESCRIPTION
+    }
+
+    fn execute_primary_action(&self, input: String) -> bool {
+        thread::spawn(move || {
+            if open::that(input.clone()).is_err() {
+                println!("{}", format!("Failed to open {}!", input));
+            }
+        });
+        true
+    }
+
+    fn execute_secondary_action(&self, _input: String) -> bool {
+        false
     }
 
     fn get_search_result(&self, search_term: String) -> Result<Vec<String>, ()> {

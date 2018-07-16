@@ -18,6 +18,14 @@ impl Plugin for WordlistPlugin {
         DESCRIPTION
     }
 
+    fn execute_primary_action(&self, _input: String) -> bool {
+        false
+    }
+
+    fn execute_secondary_action(&self, _input: String) -> bool {
+        false
+    }
+
     fn get_search_result(&self, search_term: String) -> Result<Vec<String>, ()> {
         if !Self::can_handle(search_term.clone()) {
             return Err(());

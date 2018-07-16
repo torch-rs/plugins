@@ -7,6 +7,8 @@ use filters::Filter;
 use filters::substring_filter::SubstringFilter;
 use searchers::Search;
 use searchers::files_searcher::FilesSearcher;
+use sorters::Sorter;
+use sorters::files_sorter::FilesSorter;
 
 static SEARCH_PREFIX: &'static str = ":files ";
 pub static DESCRIPTION: &'static str = "A files plugin";
@@ -43,7 +45,8 @@ impl Plugin for FilesPlugin {
         let search_term = &search_term[SEARCH_PREFIX.chars().count()..];
         let candidates = FilesSearcher::search();
         let filtered_candidates = SubstringFilter::filter(candidates, search_term.to_string());
-        Ok(filtered_candidates)
+        let sorted_candidates = FilesSorter::sort(&filtered_candidates);
+        Ok(sorted_candidates)
     }
 
 }

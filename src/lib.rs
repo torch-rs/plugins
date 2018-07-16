@@ -1,5 +1,6 @@
 extern crate filters;
 extern crate searchers;
+extern crate sorters;
 
 pub mod files_plugin;
 pub mod wordlist_plugin;

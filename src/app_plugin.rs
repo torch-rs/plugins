@@ -1,3 +1,7 @@
+extern crate inflector;
+
+use self::inflector::Inflector;
+
 use std::path;
 use std::process;
 use std::thread;
@@ -13,12 +17,12 @@ pub static DESCRIPTION: &'static str = "A app plugin";
 
 pub struct AppPlugin;
 
-fn filename_filter(candidates: Vec<String>) -> Vec<String> {
+fn titlecase_filename_filter(candidates: Vec<String>) -> Vec<String> {
     let mut filtered_candidates = Vec::new();
     for candidate in &candidates {
         let p = path::Path::new(candidate);
         if let Some(filename) = p.file_stem() {
-            filtered_candidates.push(filename.to_string_lossy().into_owned());
+            filtered_candidates.push(filename.to_string_lossy().into_owned().to_title_case());
         }
     }
     filtered_candidates
@@ -62,7 +66,7 @@ impl Plugin for AppPlugin {
         }
         let search_term = &search_term[SEARCH_PREFIX.chars().count()..];
         let candidates = AppSearcher::search();
-        let filename_candidates = filename_filter(candidates);
+        let filename_candidates = titlecase_filename_filter(candidates);
         let filtered_candidates = SubstringFilter::filter(filename_candidates, search_term.to_string());
         Ok(filtered_candidates)
     }
@@ -77,12 +81,12 @@ mod tests {
 
     #[test]
     fn run_linux_app() {
-        let search_result = AppPlugin.get_search_result(String::from(":app fire"));
+        let search_result = AppPlugin.get_search_result(String::from(":app Fire"));
         assert!(search_result.is_ok());
         let unwrapped_search_result = search_result.unwrap();
         assert_eq!(unwrapped_search_result.len(), 1);
         let candidate = unwrapped_search_result[0].clone();
-        assert_eq!(candidate, "firefox");
+        assert_eq!(candidate, "Firefox");
         assert!(AppPlugin.execute_primary_action(candidate.to_string()));
     }
 

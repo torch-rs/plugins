@@ -69,5 +69,18 @@ mod tests {
                    Ok(vec![format!("{}/Downloads/evil.pdf", homedir),
                            format!("{}/OSSetup/EvilEmacs/straight/repos/evil/doc/evil.pdf", homedir)]));
     }
+
+    #[test]
+    fn simple_open_file() {
+        let homedir = match dirs::home_dir() {
+            Some(path) => path.to_string_lossy().into_owned(),
+            None => String::from("")
+        };
+        let search_candidates = FilesPlugin.get_search_result(String::from(":files evil.pdf"));
+        assert!(search_candidates.is_ok());
+        let unwrapped_search_candidates = search_candidates.unwrap();
+        assert_eq!(unwrapped_search_candidates[0], format!("{}/Downloads/evil.pdf", homedir));
+        assert!(FilesPlugin.execute_primary_action(unwrapped_search_candidates[0].clone()));
+    }
         
 }

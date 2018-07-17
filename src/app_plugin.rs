@@ -1,5 +1,6 @@
 use std::path;
 use std::process;
+use std::thread;
 
 use Plugin;
 use filters::Filter;
@@ -35,10 +36,12 @@ impl Plugin for AppPlugin {
 
     fn execute_primary_action(&self, input: String) -> bool {
         if cfg!(target_os="linux") {
-            process::Command::new("gtk-launch")
-                .arg(input)
-                .output()
-                .expect("Unable to run app!");
+            thread::spawn(move || {
+                process::Command::new("gtk-launch")
+                    .arg(input)
+                    .output()
+                    .expect("Unable to run app!");
+            });
             true
         } else if cfg!(target_os="macos") {
             false

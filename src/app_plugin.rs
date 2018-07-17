@@ -39,6 +39,7 @@ impl Plugin for AppPlugin {
     }
 
     fn execute_primary_action(&self, input: String) -> bool {
+        let input = input.to_lowercase();
         if cfg!(target_os="linux") {
             thread::spawn(move || {
                 process::Command::new("gtk-launch")

@@ -11,6 +11,8 @@ pub fn get_plugin(search_term: String) -> Option<Box<Plugin + 'static + Send>> {
         Some(Box::new(files_plugin::FilesPlugin))
     } else if wordlist_plugin::WordlistPlugin::can_handle(search_term.clone()) {
         Some(Box::new(wordlist_plugin::WordlistPlugin))
+    } else if app_plugin::AppPlugin::can_handle(search_term.clone()) {
+        Some(Box::new(app_plugin::AppPlugin))
     } else {
         None
     }

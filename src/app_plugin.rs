@@ -8,7 +8,7 @@ use std::thread;
 
 use Plugin;
 use filters::Filter;
-use filters::substring_filter::SubstringFilter;
+use filters::ignore_case_substring_filter::IgnoreCaseSubstringFilter;
 use searchers::Search;
 use searchers::app_searcher::AppSearcher;
 use sorters::Sorter;
@@ -77,7 +77,7 @@ impl Plugin for AppPlugin {
         let search_term = &search_term[SEARCH_PREFIX.chars().count()..];
         let candidates = AppSearcher::search();
         let filename_candidates = titlecase_filename_filter(candidates);
-        let filtered_candidates = SubstringFilter::filter(filename_candidates, search_term.to_string());
+        let filtered_candidates = IgnoreCaseSubstringFilter::filter(filename_candidates, search_term.to_string());
         let sorted_candidates = AlphabeticalSorter::sort(&filtered_candidates);
         Ok(sorted_candidates)
     }
@@ -92,7 +92,7 @@ mod tests {
 
     #[test]
     fn run_linux_app() {
-        let search_result = AppPlugin.get_search_result(String::from(":app Fire"));
+        let search_result = AppPlugin.get_search_result(String::from(":app fire"));
         assert!(search_result.is_ok());
         let unwrapped_search_result = search_result.unwrap();
         assert_eq!(unwrapped_search_result.len(), 1);

@@ -11,6 +11,8 @@ use filters::Filter;
 use filters::substring_filter::SubstringFilter;
 use searchers::Search;
 use searchers::app_searcher::AppSearcher;
+use sorters::Sorter;
+use sorters::alphabetical_sorter::AlphabeticalSorter;
 
 static SEARCH_PREFIX: &'static str = ":app ";
 pub static DESCRIPTION: &'static str = "A app plugin";
@@ -49,7 +51,14 @@ impl Plugin for AppPlugin {
             });
             true
         } else if cfg!(target_os="macos") {
-            false
+            thread::spawn(move || {
+                process::Command::new("open")
+                    .arg("-a")
+                    .arg(input)
+                    .output()
+                    .expect("Unable to run app!");
+            });
+            true
         } else if cfg!(target_os="windows") {
             false
         } else {
@@ -69,7 +78,8 @@ impl Plugin for AppPlugin {
         let candidates = AppSearcher::search();
         let filename_candidates = titlecase_filename_filter(candidates);
         let filtered_candidates = SubstringFilter::filter(filename_candidates, search_term.to_string());
-        Ok(filtered_candidates)
+        let sorted_candidates = AlphabeticalSorter::sort(&filtered_candidates);
+        Ok(sorted_candidates)
     }
     
 }

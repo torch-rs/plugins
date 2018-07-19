@@ -7,7 +7,7 @@ use filters::Filter;
 use filters::substring_filter::SubstringFilter;
 use searchers::Search;
 use searchers::files_searcher::FilesSearcher;
-use sorters::Sorter;
+use sorters::Sort;
 use sorters::files_sorter::FilesSorter;
 
 static SEARCH_PREFIX: &'static str = ":files ";

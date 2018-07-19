@@ -11,8 +11,8 @@ use filters::Filter;
 use filters::ignore_case_substring_filter::IgnoreCaseSubstringFilter;
 use searchers::Search;
 use searchers::app_searcher::AppSearcher;
-use sorters::Sorter;
-use sorters::alphabetical_sorter::AlphabeticalSorter;
+use sorters::WeightedSort;
+use sorters::frequency_sorter::FrequencySorter;
 
 static SEARCH_PREFIX: &'static str = ":app ";
 pub static DESCRIPTION: &'static str = "A app plugin";
@@ -41,12 +41,15 @@ impl Plugin for AppPlugin {
     }
 
     fn execute_primary_action(&self, input: String) -> bool {
+        let mut sorter = FrequencySorter::new(String::from("app"));
+        sorter.increment_weight(input.clone());
+        sorter.save();
         let input = input.to_lowercase();
         if cfg!(target_os="linux") {
             thread::spawn(move || {
                 process::Command::new("gtk-launch")
                     .arg(input)
-                    .output()
+                    .spawn()
                     .expect("Unable to run app!");
             });
             true
@@ -55,7 +58,7 @@ impl Plugin for AppPlugin {
                 process::Command::new("open")
                     .arg("-a")
                     .arg(input)
-                    .output()
+                    .spawn()
                     .expect("Unable to run app!");
             });
             true
@@ -78,7 +81,9 @@ impl Plugin for AppPlugin {
         let candidates = AppSearcher::search();
         let filename_candidates = titlecase_filename_filter(candidates);
         let filtered_candidates = IgnoreCaseSubstringFilter::filter(filename_candidates, search_term.to_string());
-        let sorted_candidates = AlphabeticalSorter::sort(&filtered_candidates);
+
+        let sorter = FrequencySorter::new(String::from("app"));
+        let sorted_candidates = sorter.sort(&filtered_candidates);
         Ok(sorted_candidates)
     }
     

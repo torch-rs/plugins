@@ -1,4 +1,5 @@
 extern crate inflector;
+extern crate raise_window;
 
 use self::inflector::Inflector;
 
@@ -47,12 +48,14 @@ impl Plugin for AppPlugin {
 
         let input = input.to_lowercase().as_str().replace(" ", "-");
         if cfg!(target_os="linux") {
-            thread::spawn(move || {
-                process::Command::new("gtk-launch")
-                    .arg(input)
-                    .spawn()
-                    .expect("Unable to run app!");
-            });
+            if let Err(_e) = raise_window::raise_app(input.to_title_case()) {
+                thread::spawn(move || {
+                    process::Command::new("gtk-launch")
+                        .arg(input)
+                        .spawn()
+                        .expect("Unable to run app!");
+                });
+            }
             true
         } else if cfg!(target_os="macos") {
             thread::spawn(move || {

@@ -44,7 +44,8 @@ impl Plugin for AppPlugin {
         let mut sorter = FrequencySorter::new(String::from("app"));
         sorter.increment_weight(input.clone());
         sorter.save();
-        let input = input.to_lowercase();
+
+        let input = input.to_lowercase().as_str().replace(" ", "-");
         if cfg!(target_os="linux") {
             thread::spawn(move || {
                 process::Command::new("gtk-launch")

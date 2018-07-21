@@ -22,8 +22,10 @@ impl Plugin for WindowsPlugin {
     }
 
     fn execute_primary_action(&self, input: String) -> bool {
-        raise_window::raise_window_by_name(input);
-        true
+        if let Ok(_) = raise_window::raise_window_by_name(input) {
+            return true;
+        }
+        false
     }
 
     fn execute_secondary_action(&self, input: String) -> bool {

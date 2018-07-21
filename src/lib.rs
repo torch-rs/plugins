@@ -4,6 +4,7 @@ extern crate sorters;
 
 pub mod app_plugin;
 pub mod files_plugin;
+pub mod windows_plugin;
 pub mod wordlist_plugin;
 
 pub fn get_plugin(search_term: String) -> Option<Box<Plugin + 'static + Send>> {

@@ -14,6 +14,8 @@ pub fn get_plugin(search_term: String) -> Option<Box<Plugin + 'static + Send>> {
         Some(Box::new(wordlist_plugin::WordlistPlugin))
     } else if app_plugin::AppPlugin::can_handle(search_term.clone()) {
         Some(Box::new(app_plugin::AppPlugin))
+    } else if windows_plugin::WindowsPlugin::can_handle(search_term.clone()) {
+        Some(Box::new(windows_plugin::WindowsPlugin))
     } else {
         None
     }

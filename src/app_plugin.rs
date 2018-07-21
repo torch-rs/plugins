@@ -48,7 +48,7 @@ impl Plugin for AppPlugin {
 
         let input = input.to_lowercase().as_str().replace(" ", "-");
         if cfg!(target_os="linux") {
-            if let Err(_e) = raise_window::raise_app(input.to_title_case()) {
+            if let Err(_e) = raise_window::raise_window_by_class(input.to_title_case()) {
                 thread::spawn(move || {
                     process::Command::new("gtk-launch")
                         .arg(input)

@@ -74,7 +74,34 @@ impl Plugin for AppPlugin {
     }
 
     fn execute_secondary_action(&self, input: String) -> bool {
-        false
+        let mut sorter = FrequencySorter::new(String::from("app"));
+        sorter.increment_weight(input.clone());
+        sorter.save();
+
+        let input = input.to_lowercase().as_str().replace(" ", "-");
+        if cfg!(target_os="linux") {
+            thread::spawn(move || {
+                process::Command::new("gtk-launch")
+                    .arg(input)
+                    .spawn()
+                    .expect("Unable to run app!");
+            });
+            true
+        } else if cfg!(target_os="macos") {
+            thread::spawn(move || {
+                process::Command::new("open")
+                    .arg("-a")
+                    .arg("-n")
+                    .arg(input)
+                    .spawn()
+                    .expect("Unable to run app!");
+            });
+            true
+        } else if cfg!(target_os="windows") {
+            false
+        } else {
+            false
+        }
     }
 
     fn get_search_result(&self, search_term: String) -> Result<Vec<String>, ()> {

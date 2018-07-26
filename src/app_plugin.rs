@@ -6,6 +6,7 @@ use self::inflector::Inflector;
 use std::path;
 use std::process;
 use std::thread;
+use std::time;
 
 use Plugin;
 use filters::Filter;
@@ -64,6 +65,7 @@ impl Plugin for AppPlugin {
                     }
                     return true;
                 });
+                thread::sleep(time::Duration::from_millis(100));
             }
             true
         } else if cfg!(target_os="macos") {

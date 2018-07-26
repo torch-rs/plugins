@@ -50,10 +50,19 @@ impl Plugin for AppPlugin {
         if cfg!(target_os="linux") {
             if let Err(_e) = raise_window::raise_window_by_class(input.to_title_case()) {
                 thread::spawn(move || {
-                    process::Command::new("gtk-launch")
-                        .arg(input)
-                        .spawn()
-                        .expect("Unable to run app!");
+                    let success = process::Command::new("gtk-launch")
+                        .arg(input.clone())
+                        .status()
+                        .expect("Failed to run command")
+                        .success();
+                    if !success {
+                        return process::Command::new("gtk-launch")
+                            .arg(input.to_title_case())
+                            .status()
+                            .expect("Failed to run command")
+                            .success();
+                    }
+                    return true;
                 });
             }
             true
@@ -134,6 +143,16 @@ mod tests {
         assert_eq!(unwrapped_search_result.len(), 1);
         let candidate = unwrapped_search_result[0].clone();
         assert_eq!(candidate, "Firefox");
+        assert!(AppPlugin.execute_primary_action(candidate.to_string()));
+    }
+
+    #[test]
+    fn test_thunar() {
+        let search_result = AppPlugin.get_search_result(String::from(":app thun"));
+        assert!(search_result.is_ok());
+        let unwrapped_search_result = search_result.unwrap();
+        let candidate = unwrapped_search_result[0].clone();
+        assert_eq!(candidate, "Thunar");
         assert!(AppPlugin.execute_primary_action(candidate.to_string()));
     }
 

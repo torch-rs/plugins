@@ -7,7 +7,6 @@ use self::search_candidate::SearchCandidate;
 
 use std::process;
 use std::thread;
-use std::time;
 
 use Plugin;
 use filters::Filter;
@@ -37,25 +36,14 @@ impl Plugin for AppPlugin {
         sorter.increment_weight(input.clone());
         sorter.save();
 
-        let input = input.to_lowercase().as_str().replace(" ", "-");
         if cfg!(target_os="linux") {
             if let Err(_e) = raise_window::raise_window_by_class(input.to_title_case()) {
                 thread::spawn(move || {
-                    let success = process::Command::new("gtk-launch")
+                    process::Command::new("gtk-launch")
                         .arg(input.clone())
-                        .status()
-                        .expect("Failed to run command")
-                        .success();
-                    if !success {
-                        return process::Command::new("gtk-launch")
-                            .arg(input.to_title_case())
-                            .status()
-                            .expect("Failed to run command")
-                            .success();
-                    }
-                    return true;
+                        .spawn()
+                        .expect("Failed to run command");
                 });
-                thread::sleep(time::Duration::from_millis(100));
             }
             true
         } else if cfg!(target_os="macos") {

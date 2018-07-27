@@ -1,8 +1,11 @@
+extern crate search_candidate;
+
 use Plugin;
 use filters::Filter;
 use filters::substring_filter::SubstringFilter;
 use searchers::Search;
 use searchers::wordlist_searcher::WordlistSearcher;
+use self::search_candidate::SearchCandidate;
 
 pub static DESCRIPTION: &'static str = "A wordlist plugin";
 
@@ -26,7 +29,7 @@ impl Plugin for WordlistPlugin {
         false
     }
 
-    fn get_search_result(&self, search_term: String) -> Result<Vec<String>, ()> {
+    fn get_search_result(&self, search_term: String) -> Result<Vec<SearchCandidate>, ()> {
         if !Self::can_handle(search_term.clone()) {
             return Err(());
         } 
@@ -41,27 +44,30 @@ impl Plugin for WordlistPlugin {
 #[cfg(test)]
 mod tests {
 
+    extern crate search_candidate;
+
     use Plugin;
     use wordlist_plugin::WordlistPlugin;
+    use self::search_candidate::Key;
 
     #[test]
     fn simple_search() {
-        assert_eq!(WordlistPlugin.get_search_result(String::from(":wordlist sss")),
-                   Ok(vec!["asssembler".to_string(), "bossship".to_string(), "demigoddessship".to_string(),
-                           "earlesss".to_string(), "goddessship".to_string(), "headmistressship".to_string(),
-                           "passsaging".to_string(), "patronessship".to_string()]));
+        let actual_results = vec!["asssembler", "bossship", "demigoddessship", "earlesss", "goddessship",
+                                  "headmistressship", "passsaging", "patronessship"];
+        let search_candidates = WordlistPlugin.get_search_result(String::from(":wordlist sss")).unwrap();
+        for i in 0..search_candidates.len() {
+            assert_eq!(search_candidates[i].get_value(Key::DisplayText), actual_results[i]);
+        }
     }
 
     #[test]
     fn missing_prefix_search() {
-        assert_eq!(WordlistPlugin.get_search_result(String::from("sss")),
-                   Err(()));
+        assert!(WordlistPlugin.get_search_result(String::from("sss")).is_err());
     }
 
     #[test]
     fn wrong_prefix_search() {
-        assert_eq!(WordlistPlugin.get_search_result(String::from(":wrongprefix sss")),
-                   Err(()));
+        assert!(WordlistPlugin.get_search_result(String::from(":wrongprefix sss")).is_err());
     }
 
 }

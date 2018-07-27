@@ -1,4 +1,5 @@
 extern crate open;
+extern crate search_candidate;
 
 use std::thread;
 
@@ -9,6 +10,7 @@ use searchers::Search;
 use searchers::files_searcher::FilesSearcher;
 use sorters::Sort;
 use sorters::files_sorter::FilesSorter;
+use self::search_candidate::SearchCandidate;
 
 static SEARCH_PREFIX: &'static str = ":files ";
 pub static DESCRIPTION: &'static str = "A files plugin";
@@ -38,7 +40,7 @@ impl Plugin for FilesPlugin {
         false
     }
 
-    fn get_search_result(&self, search_term: String) -> Result<Vec<String>, ()> {
+    fn get_search_result(&self, search_term: String) -> Result<Vec<SearchCandidate>, ()> {
         if !Self::can_handle(search_term.clone()) {
             return Err(());
         }
@@ -55,9 +57,11 @@ impl Plugin for FilesPlugin {
 mod tests {
 
     extern crate dirs;
+    extern crate search_candidate;
 
     use Plugin;
     use files_plugin::FilesPlugin;
+    use self::search_candidate::Key;
 
     #[test]
     fn simple_search() {
@@ -65,9 +69,12 @@ mod tests {
             Some(path) => path.to_string_lossy().into_owned(),
             None => String::from("")
         };
-        assert_eq!(FilesPlugin.get_search_result(String::from(":files evil.pdf")),
-                   Ok(vec![format!("{}/Downloads/evil.pdf", homedir),
-                           format!("{}/OSSetup/EvilEmacs/straight/repos/evil/doc/evil.pdf", homedir)]));
+        let actual_result = vec![format!("{}/Downloads/evil.pdf", homedir),
+                                 format!("{}/OSSetup/EvilEmacs/straight/repos/evil/doc/evil.pdf", homedir)];
+        let search_candidates = FilesPlugin.get_search_result(String::from(":files evil.pdf")).unwrap();
+        for i in 0..search_candidates.len() {
+            assert_eq!(search_candidates[i].get_value(Key::DisplayText), actual_result[i]);
+        }
     }
 
     #[test]
@@ -79,8 +86,9 @@ mod tests {
         let search_candidates = FilesPlugin.get_search_result(String::from(":files evil.pdf"));
         assert!(search_candidates.is_ok());
         let unwrapped_search_candidates = search_candidates.unwrap();
-        assert_eq!(unwrapped_search_candidates[0], format!("{}/Downloads/evil.pdf", homedir));
-        assert!(FilesPlugin.execute_primary_action(unwrapped_search_candidates[0].clone()));
+        assert_eq!(unwrapped_search_candidates[0].get_value(Key::DisplayText),
+                   format!("{}/Downloads/evil.pdf", homedir));
+        assert!(FilesPlugin.execute_primary_action(unwrapped_search_candidates[0].get_value(Key::DisplayText)));
     }
         
 }

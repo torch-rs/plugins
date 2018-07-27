@@ -1,9 +1,10 @@
 extern crate inflector;
 extern crate raise_window;
+extern crate search_candidate;
 
 use self::inflector::Inflector;
+use self::search_candidate::SearchCandidate;
 
-use std::path;
 use std::process;
 use std::thread;
 use std::time;
@@ -20,17 +21,6 @@ static SEARCH_PREFIX: &'static str = ":app ";
 pub static DESCRIPTION: &'static str = "A app plugin";
 
 pub struct AppPlugin;
-
-fn titlecase_filename_filter(candidates: Vec<String>) -> Vec<String> {
-    let mut filtered_candidates = Vec::new();
-    for candidate in &candidates {
-        let p = path::Path::new(candidate);
-        if let Some(filename) = p.file_stem() {
-            filtered_candidates.push(filename.to_string_lossy().into_owned().to_title_case());
-        }
-    }
-    filtered_candidates
-}
 
 impl Plugin for AppPlugin {
 
@@ -115,14 +105,13 @@ impl Plugin for AppPlugin {
         }
     }
 
-    fn get_search_result(&self, search_term: String) -> Result<Vec<String>, ()> {
+    fn get_search_result(&self, search_term: String) -> Result<Vec<SearchCandidate>, ()> {
         if !Self::can_handle(search_term.clone()) {
             return Err(());
         }
         let search_term = &search_term[SEARCH_PREFIX.chars().count()..];
-        let candidates = AppSearcher::search();
-        let filename_candidates = titlecase_filename_filter(candidates);
-        let filtered_candidates = IgnoreCaseSubstringFilter::filter(filename_candidates, search_term.to_string());
+        let search_candidates = AppSearcher::search();
+        let filtered_candidates = IgnoreCaseSubstringFilter::filter(search_candidates, search_term.to_string());
 
         let sorter = FrequencySorter::new(String::from("app"));
         let sorted_candidates = sorter.sort(&filtered_candidates);
@@ -134,8 +123,11 @@ impl Plugin for AppPlugin {
 #[cfg(test)]
 mod tests {
 
+    extern crate search_candidate;
+
     use Plugin;
     use app_plugin::AppPlugin;
+    use self::search_candidate::Key;
 
     #[test]
     fn run_linux_app() {
@@ -144,8 +136,8 @@ mod tests {
         let unwrapped_search_result = search_result.unwrap();
         assert_eq!(unwrapped_search_result.len(), 1);
         let candidate = unwrapped_search_result[0].clone();
-        assert_eq!(candidate, "Firefox");
-        assert!(AppPlugin.execute_primary_action(candidate.to_string()));
+        assert_eq!(candidate.get_value(Key::DisplayText), "Firefox");
+        assert!(AppPlugin.execute_primary_action(candidate.get_value(Key::DisplayText)));
     }
 
     #[test]
@@ -154,8 +146,8 @@ mod tests {
         assert!(search_result.is_ok());
         let unwrapped_search_result = search_result.unwrap();
         let candidate = unwrapped_search_result[0].clone();
-        assert_eq!(candidate, "Thunar");
-        assert!(AppPlugin.execute_primary_action(candidate.to_string()));
+        assert_eq!(candidate.get_value(Key::DisplayText), "Thunar");
+        assert!(AppPlugin.execute_primary_action(candidate.get_value(Key::DisplayText)));
     }
 
 }

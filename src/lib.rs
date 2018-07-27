@@ -1,11 +1,14 @@
 extern crate filters;
 extern crate searchers;
+extern crate search_candidate;
 extern crate sorters;
 
 pub mod app_plugin;
 pub mod files_plugin;
 pub mod windows_plugin;
 pub mod wordlist_plugin;
+
+use self::search_candidate::SearchCandidate;
 
 pub fn get_plugin(search_term: String) -> Option<Box<Plugin + 'static + Send>> {
     if files_plugin::FilesPlugin::can_handle(search_term.clone()) {
@@ -27,15 +30,18 @@ pub trait Plugin {
     fn description(&self) -> &'static str; 
     fn execute_primary_action(&self, input: String) -> bool;
     fn execute_secondary_action(&self, input: String) -> bool;
-    fn get_search_result(&self, search_term: String) -> Result<Vec<String>, ()>;
+    fn get_search_result(&self, search_term: String) -> Result<Vec<SearchCandidate>, ()>;
     
 }
 
 #[cfg(test)]
 mod tests {
 
+    extern crate search_candidate;
+
     use files_plugin;
     use get_plugin;
+    use self::search_candidate::Key;
 
     #[test]
     fn get_valid_plugin() {
@@ -48,10 +54,12 @@ mod tests {
     #[test]
     fn validate_boxed_plugin_methods() {
         let plugin = get_plugin(String::from(":wordlist sss")).unwrap();
-        assert_eq!(plugin.get_search_result(String::from(":wordlist sss")), 
-                   Ok(vec!["asssembler".to_string(), "bossship".to_string(), "demigoddessship".to_string(),
-                           "earlesss".to_string(), "goddessship".to_string(), "headmistressship".to_string(),
-                           "passsaging".to_string(), "patronessship".to_string()]));
+        let actual_results = vec!["asssembler", "bossship", "demigoddessship", "earlesss", "goddessship",
+                                  "headmistressship", "passsaging", "patronessship"];
+        let search_candidates = plugin.get_search_result(String::from(":wordlist sss")).unwrap();
+        for i in 0..search_candidates.len() {
+            assert_eq!(search_candidates[i].get_value(Key::DisplayText), actual_results[i]);
+        }
         assert!(!plugin.execute_primary_action(String::from("bossship")));
     }
 

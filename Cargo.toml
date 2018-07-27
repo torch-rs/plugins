@@ -10,4 +10,5 @@ Inflector = "*"
 open = "1.2.1"
 raise_window = { git = "https://github.com/torch-rs/raise_window" }
 searchers = { git = "https://github.com/torch-rs/searchers" }
+search_candidate = { git = "https://github.com/torch-rs/search_candidate" }
 sorters = { git = "https://github.com/torch-rs/sorters" }

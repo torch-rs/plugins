@@ -1,12 +1,13 @@
 extern crate search_candidate;
 
-use Plugin;
 use filters::Filter;
 use filters::substring_filter::SubstringFilter;
+use Plugin;
 use searchers::Search;
 use searchers::wordlist_searcher::WordlistSearcher;
 use self::search_candidate::SearchCandidate;
 
+static SEARCH_PREFIX: &'static str = ":wordlist ";
 pub static DESCRIPTION: &'static str = "A wordlist plugin";
 
 pub struct WordlistPlugin;
@@ -14,7 +15,7 @@ pub struct WordlistPlugin;
 impl Plugin for WordlistPlugin {
 
     fn can_handle(search_term: &str) -> bool {
-        search_term.starts_with(":wordlist ")
+        search_term.starts_with(SEARCH_PREFIX)
     }
 
     fn description(&self) -> &'static str {
@@ -47,9 +48,9 @@ mod tests {
     extern crate search_candidate;
 
     use Plugin;
-    use wordlist_plugin::WordlistPlugin;
     use self::search_candidate::Key;
-
+    use wordlist_plugin::WordlistPlugin;
+    
     #[test]
     fn simple_search() {
         let actual_results = vec!["asssembler", "bossship", "demigoddessship", "earlesss", "goddessship",

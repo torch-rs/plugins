@@ -2,19 +2,17 @@ extern crate inflector;
 extern crate raise_window;
 extern crate search_candidate;
 
-use self::inflector::Inflector;
-use self::search_candidate::SearchCandidate;
-
-use std::process;
-use std::thread;
-
-use Plugin;
 use filters::Filter;
 use filters::ignore_case_substring_filter::IgnoreCaseSubstringFilter;
+use Plugin;
 use searchers::Search;
 use searchers::app_searcher::AppSearcher;
+use self::inflector::Inflector;
+use self::search_candidate::SearchCandidate;
 use sorters::WeightedSort;
 use sorters::frequency_sorter::FrequencySorter;
+use std::process;
+use std::thread;
 
 static SEARCH_PREFIX: &'static str = ":app ";
 pub static DESCRIPTION: &'static str = "A app plugin";
@@ -117,10 +115,10 @@ mod tests {
 
     extern crate search_candidate;
 
-    use Plugin;
     use app_plugin::AppPlugin;
+    use Plugin;
     use self::search_candidate::Key;
-
+    
     #[test]
     fn run_linux_app() {
         let search_result = AppPlugin.get_search_result(":app fire") ;

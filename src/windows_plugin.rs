@@ -1,9 +1,9 @@
 extern crate raise_window;
 extern crate search_candidate;
 
-use Plugin;
 use filters::Filter;
 use filters::ignore_case_substring_filter::IgnoreCaseSubstringFilter;
+use Plugin;
 use searchers::Search;
 use searchers::windows_searcher::WindowsSearcher;
 use self::search_candidate::SearchCandidate;
@@ -52,9 +52,9 @@ mod tests {
     extern crate search_candidate;
 
     use Plugin;
-    use windows_plugin::WindowsPlugin;
     use self::search_candidate::Key;
-
+    use windows_plugin::WindowsPlugin;
+    
     #[test]
     fn run_linux_app() {
         let search_result = WindowsPlugin.get_search_result(":window term");

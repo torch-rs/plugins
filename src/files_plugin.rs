@@ -1,16 +1,15 @@
 extern crate open;
 extern crate search_candidate;
 
-use std::thread;
-
-use Plugin;
 use filters::Filter;
 use filters::substring_filter::SubstringFilter;
+use Plugin;
 use searchers::Search;
 use searchers::files_searcher::FilesSearcher;
+use self::search_candidate::SearchCandidate;
 use sorters::Sort;
 use sorters::files_sorter::FilesSorter;
-use self::search_candidate::SearchCandidate;
+use std::thread;
 
 static SEARCH_PREFIX: &'static str = ":files ";
 pub static DESCRIPTION: &'static str = "A files plugin";
@@ -60,8 +59,8 @@ mod tests {
     extern crate dirs;
     extern crate search_candidate;
 
-    use Plugin;
     use files_plugin::FilesPlugin;
+    use Plugin;
     use self::search_candidate::Key;
 
     #[test]

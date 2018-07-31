@@ -19,7 +19,7 @@ pub struct FilesPlugin;
 
 impl Plugin for FilesPlugin {
 
-    fn can_handle(search_term: String) -> bool {
+    fn can_handle(search_term: &str) -> bool {
         search_term.starts_with(SEARCH_PREFIX)
     }
     
@@ -27,7 +27,8 @@ impl Plugin for FilesPlugin {
         DESCRIPTION
     }
 
-    fn execute_primary_action(&self, input: String) -> bool {
+    fn execute_primary_action(&self, input: &str) -> bool {
+        let input = input.to_string();
         thread::spawn(move || {
             if open::that(input.clone()).is_err() {
                 println!("{}", format!("Failed to open {}!", input));
@@ -36,17 +37,17 @@ impl Plugin for FilesPlugin {
         true
     }
 
-    fn execute_secondary_action(&self, _input: String) -> bool {
+    fn execute_secondary_action(&self, _input: &str) -> bool {
         false
     }
 
-    fn get_search_result(&self, search_term: String) -> Result<Vec<SearchCandidate>, ()> {
+    fn get_search_result(&self, search_term: &str) -> Result<Vec<SearchCandidate>, ()> {
         if !Self::can_handle(search_term.clone()) {
             return Err(());
         }
         let search_term = &search_term[SEARCH_PREFIX.chars().count()..];
         let candidates = FilesSearcher::search();
-        let filtered_candidates = SubstringFilter::filter(candidates, search_term.to_string());
+        let filtered_candidates = SubstringFilter::filter(candidates, search_term);
         let sorted_candidates = FilesSorter::sort(&filtered_candidates);
         Ok(sorted_candidates)
     }
@@ -71,7 +72,7 @@ mod tests {
         };
         let actual_result = vec![format!("{}/Downloads/evil.pdf", homedir),
                                  format!("{}/OSSetup/EvilEmacs/straight/repos/evil/doc/evil.pdf", homedir)];
-        let search_candidates = FilesPlugin.get_search_result(String::from(":files evil.pdf")).unwrap();
+        let search_candidates = FilesPlugin.get_search_result(":files evil.pdf").unwrap();
         for i in 0..search_candidates.len() {
             assert_eq!(search_candidates[i].get_value(Key::DisplayText), actual_result[i]);
         }
@@ -83,12 +84,12 @@ mod tests {
             Some(path) => path.to_string_lossy().into_owned(),
             None => String::from("")
         };
-        let search_candidates = FilesPlugin.get_search_result(String::from(":files evil.pdf"));
+        let search_candidates = FilesPlugin.get_search_result(":files evil.pdf");
         assert!(search_candidates.is_ok());
         let unwrapped_search_candidates = search_candidates.unwrap();
         assert_eq!(unwrapped_search_candidates[0].get_value(Key::DisplayText),
                    format!("{}/Downloads/evil.pdf", homedir));
-        assert!(FilesPlugin.execute_primary_action(unwrapped_search_candidates[0].get_value(Key::DisplayText)));
+        assert!(FilesPlugin.execute_primary_action(&unwrapped_search_candidates[0].get_value(Key::DisplayText)));
     }
         
 }
